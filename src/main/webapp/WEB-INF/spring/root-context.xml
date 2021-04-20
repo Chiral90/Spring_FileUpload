@@ -1,8 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
+	
+	<context:annotation-config />
+	
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		 <property name="driverClassName"
+		 	value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
+		 <property name="jdbcUrl"
+		 	value="jdbc:log4jdbc:mysql://localhost:3306/tp?serverTimezone=Asia/Seoul"></property>
+		 
+		<property name="username" value="root"></property>
+		<property name="password" value="1234"></property>
+	</bean>
+
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+		<constructor-arg ref="hikariConfig" />
+	</bean>
+	
+	<!-- mybatis-spring의 클래스 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<mybatis-spring:scan base-package="org.zerock.mapper" />
+	<!-- component-scan을 이용해서 service, aop 패키지 스캔 -->
+	<!-- 스캔 과정에서 SampleServiceImpl, LogAdvice가 스프링의 빈(객체)으로 등록 -->
+	<context:component-scan base-package="org.zerock.service" />
+	<context:component-scan base-package="org.zerock.aop" />	
+	<!-- aop:aspectj-autoproxy />를 통해 LogAdvice에 설정한 @Before가 동작 -->
+	<aop:aspectj-autoproxy />
+	
+	
+	<!-- 어노테이션 기반으로 트랜잭션을 설정할 수 있게해주는 클래스 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	<tx:annotation-driven />
 		
 </beans>
