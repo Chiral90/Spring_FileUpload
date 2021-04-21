@@ -66,7 +66,8 @@
 		where no = #{no}
 	</update>
 	
-	<!-- getListWithPaging -->
+	<!-- getListWithPaging ; 댓글 처리 전-->
+	<!-- 
 	<select id="getListWithPaging" resultType="org.zerock.domain.BoardVO">
 		<![CDATA[
 			select no, title, content, writer, regdate, updatedate
@@ -76,13 +77,13 @@
 			) boardList
 			where
 		]]>
-		<include refid="criteria"></include> <!-- sql id="criteria" 부분 -->
+		<include refid="criteria"></include> sql id="criteria" 부분
 		
 		<![CDATA[			
 			rn > (#{pageNum} -1) * #{amount} and rn <= #{pageNum} * #{amount}
 		]]>
 	</select>
-	
+	 -->
 	<!-- MyBatis는 sql이라는 태그를 이용해서 sql의 일부를 별도로 보관하고 ,필요한 경우에 include 시키는 형태로 사용 가능 -->
 	<sql id="criteria">
 		<trim prefix="(" suffix=") and " prefixOverrides="or">
@@ -190,5 +191,29 @@
 		</trim>
 	</select>
 	 -->
+	 
+	 <!-- 댓글 개수 업데이트 -->
+	 <update id="updateReplyCnt">
+	 	update board_ex set replycnt = replycnt + #{amount} where no = #{no}
+	 </update>
+	 
+	 <!-- getListWithPaging ; 댓글 처리 후. replycnt컬럼을 인라인 뷰, 최종 테이블에 추가 -->
+	
+	<select id="getListWithPaging" resultType="org.zerock.domain.BoardVO">
+		<![CDATA[
+			select no, title, content, writer, regdate, updatedate, replycnt
+			from (
+				select @rownum:=@rownum+1 as rn, no, title, content, writer, regdate, updatedate, replycnt
+				from (select @rownum:=0) as tmp, board_ex order by no desc
+			) boardList
+			where
+		]]>
+		<include refid="criteria"></include>
+		
+		<![CDATA[			
+			rn > (#{pageNum} -1) * #{amount} and rn <= #{pageNum} * #{amount}
+		]]>
+	</select>
+	
 	
 </mapper>

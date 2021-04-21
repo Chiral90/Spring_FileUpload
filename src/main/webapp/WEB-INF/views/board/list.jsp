@@ -20,7 +20,7 @@
                         </div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
-                            <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-example">
+                            <table class="table table-striped table-bordered table-hover" id="dataTables-example">
                                 <thead>
                                     <tr>
                                         <th>번호</th>
@@ -42,7 +42,7 @@
                                 		<%-- <td><a href='/board/select?no=<c:out value="${board.no }" />'> --%>
                                 		<!-- 직접 링크로 연결된 경로를 form 태그를 이용해서 처리할 예정. href 속성을 게시물의 번호만을 가지도록 수정 -->
                                 		<td><a class="move" href='<c:out value="${board.no }" />'>
-                                		<c:out value="${board.title }" /></a></td>
+                                		<c:out value="${board.title }" /> <b>[ <c:out value="${board.replyCnt }" /> ]</b></a></td> <!-- 게시글 옆에 댓글 개수 출력 -->
                                 		<td><c:out value="${board.writer }" /></td>
                                 		<td><c:out value="${board.regdate }" /></td>
                                 		<td><c:out value="${board.updateDate }" /></td>                                		
