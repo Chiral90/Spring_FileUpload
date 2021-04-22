@@ -1,6 +1,6 @@
 package org.zerock.domain;
 
-import java.sql.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -17,5 +17,8 @@ public class BoardVO {
 	
 	//댓글의 개수를 의미하는 인스턴스 변수
 	private int replyCnt;
+	
+	//등록 시 한 번에 BoardAttachVO를 처리할 수 있도록 List<BoardAttachVO>를 추가
+	private List<BoardAttachVO> attachList;
 
 }

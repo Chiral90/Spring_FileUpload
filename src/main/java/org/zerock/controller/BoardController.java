@@ -51,6 +51,7 @@ public class BoardController {
 	public void register() {
 		
 	}
+	/*
 	// 글 등록 용 register : 원래는 /register, 그럼 register.jsp form action="/board/register"
 	@PostMapping("/insert")
 	public String insert(BoardVO board, RedirectAttributes rttr) { // list화면으로의 redirect를 위해 return을 String으로 설정
@@ -62,6 +63,30 @@ public class BoardController {
 		
 		return "redirect:/board/list"; // spring MVC가 내부적으로 response.sendRedirect()를 처리. controller to controller로 간주
 	}
+	*/
+	
+	// 첨부파일 처리
+	@PostMapping("/insert")
+	public String insert(BoardVO board, RedirectAttributes rttr) { // list화면으로의 redirect를 위해 return을 String으로 설정
+		log.info("insert : " + board);
+		if (board.getAttachList() != null) {
+			board.getAttachList().forEach(attach -> log.info(attach));
+			/*
+			결과 콘솔
+			INFO : org.zerock.controller.BoardController - BoardAttachVO(uuid=632e052f-7cb1-4b9e-bfc7-acd899d9ad13, uploadPath=2021\04\22, fileName=sql활용2.JPG, fileType=true, bno=0)
+			INFO : org.zerock.controller.BoardController - BoardAttachVO(uuid=fc788e16-e8c2-4e30-a65c-ec9eb5ee4ea5, uploadPath=2021\04\22, fileName=test01.txt, fileType=false, bno=0)
+			*/
+		}
+		//service.insert(board);
+		//int lastCnt = service.lastCnt();
+		
+		
+		//board.setNo(newestNo);
+		//rttr.addFlashAttribute("result", lastCnt); // RedirectAttributes의 addFlashAttribute()는 일회성으로만 데이터를 전달
+		
+		return "redirect:/board/list"; // spring MVC가 내부적으로 response.sendRedirect()를 처리. controller to controller로 간주
+	}
+	
 	
 	//@GetMapping("/select")
 	@GetMapping({"/select", "/update"}) // @GetMapping이나 @PostMapping은 URL을 배열로 처리할 수 있어서 하나의 메서드로 여러 URL 처리 가능, update는 화면 이동 용 get

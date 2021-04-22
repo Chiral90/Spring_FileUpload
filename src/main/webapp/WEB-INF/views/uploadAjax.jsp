@@ -24,6 +24,27 @@ padding: 10px;
 .uploadResult ul li img {
 width: 20px;
 }
+.bigPictureWrapper {
+position: absolute;
+display: none;
+justify-content: center;
+align-items: center;
+top: 0%;
+width: 100%;
+height: 100%;
+background-color: gray;
+z-index: 100;
+background:rgba(255, 255, 255, 0.5);
+}
+.bigPicture {
+position: relative;
+display: flex;
+justify-content: center;
+align-items: center;
+}
+.bigPicture img {
+width: 600px;
+}
 </style>
 <title>Insert title here</title>
 </head>
@@ -42,6 +63,10 @@ width: 20px;
 </ul>
 </div>
 
+<div class='bigPictureWrapper'>
+	<div class='bigPicture'>
+	</div>
+</div>
 <!-- jquery 라이브러리의 경로 추가 : jquery cdn으로 검색 -->
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" 
 integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" 
@@ -143,7 +168,7 @@ $(document).ready(function(){
 		
 	});
 	 */
-	 
+	 /* 
 	 function showUploadedFile(uploadResultArr) { // JSON 데이터를 받아서 해당 파일의 이름을 str에 추가. Ajax에서 showUploadedFile()을 호출
 		 var str = "";
 		 $(uploadResultArr).each(function(i, obj) {
@@ -152,16 +177,101 @@ $(document).ready(function(){
 				 str += "<li><img src='/resources/img/rosie.jpg'>" + obj.fileName + "</li>";
 			 }
 			 else {
-				 str += "<li>" + obj.fileName + "</li>";	//json key명 - DTO 변수명 일치하는지 확인할 것
-				 //console.log(obj); 
+				 //str += "<li>" + obj.fileName + "</li>";	//json key명 - DTO 변수명 일치하는지 확인할 것
+				 //console.log(obj);
+				 
+				 //한글, 공백 문자 처리
+				 var fileCallPath = encodeURIComponent(obj.uploadPath + "/thumbnail_" + obj.uuid
+						 + "_" + obj.fileName);
+				 
+				 str += "<li><img src='/display?fileName=" + fileCallPath + "'></li>";
 			 }
 			
 		 });
 		 //console.log(str);
 		 uploadResult.append(str);
 	 }
+	  */
+	  function showUploadedFile(uploadResultArr) { // JSON 데이터를 받아서 해당 파일의 이름을 str에 추가. Ajax에서 showUploadedFile()을 호출
+			 var str = "";
+			 $(uploadResultArr).each(function(i, obj) {
+				 
+				 //이미지가 아닌 일반 파일의 썸네일
+				 if (!obj.image) {
+					 //원본 파일의 경로 설정 (uuid가 붙어있는 상태)
+					 var fileCallPath = encodeURIComponent(obj.uploadPath + "/" + obj.uuid
+							 + "_" + obj.fileName);
+					 //다운로드 링크 추가
+					 str += "<li><a href='/download?fileName=" + fileCallPath + "'>"
+							 + "<img src='/resources/img/rosie.jpg'>" + obj.fileName + "</a>"
+							 + "<span data-file=\'" + fileCallPath + "\' data-type='file'> x </span></li>";
+				 }
+				 else {
+					 //str += "<li>" + obj.fileName + "</li>";	//json key명 - DTO 변수명 일치하는지 확인할 것
+					 //console.log(obj);
+					 
+					 //한글, 공백 문자 처리
+					 var fileCallPath = encodeURIComponent(obj.uploadPath + "/thumbnail_" + obj.uuid
+							 + "_" + obj.fileName);
+					 
+					 // 썸네일 이미지 처리
+					 // 이미지 첨부파일의 경우 경로와 UUID가 같이 필요하기 때문에 originPath를 통해 하나의 문자열로 생성
+					 var originPath = obj.uploadPath + "\\" + obj.uuid + "_" + obj.fileName;
+					 originPath = originPath.replace(new RegExp(/\\/g), "/");
+					 
+					 //str += "<li><img src='/display?fileName=" + fileCallPath + "'></li>";
+					 
+					 //a태그의 링크를 자바스크립트 실행으로 설정
+					 //<a href="javascript:showImage('originPath')"><img src='/display?fileName="#"'></a>
+					 str += "<li><a href=\"javascript:showImage(\'" + originPath
+							+ "\')\"><img src='/display?fileName=" + fileCallPath + "'></a>"
+							+ "<span data-file=\'" + fileCallPath + "\' data-type='file'> x </span></li>";
+				 }
+				
+			 });
+			 //console.log(str);
+			 uploadResult.append(str);
+		 }
+	  // 이미지 원본 확인 후 다시 한 번 클릭하면 사라지는 이벤트
+	  $(".bigPictureWrapper").on("click", function(e) {
+		  $(".bigPicture").animate({width: '0%', height: '0%'}, 1000);
+		  
+		  setTimeout(() => {
+			  $(this).hide();
+		  }, 1000);
+		  // => (ES6의 화살표 함수)는 Chrome에서 정상 작동하지만 IE에서 제대로 동작하지 않을 때 코드를 변경
+		  /* 
+		  setTimeout(function(){
+			  $('.bigPictureWrapper').hide();
+		  }, 1000);
+		   */
+	  });
+	  
+	  // 첨부파일 삭제하는 x 표시에 대한 이벤트 처리
+	  // 첨부파일의 삭제는 업로드 후에 생성되기 때문에 '이벤트 위임' 방식으로 처리
+	  $(".uploadResult").on("click", "span", function(e){
+		  var targetFile = $(this).data("file"); // "path+name"
+		  var type = $(this).data("type"); // "file"
+		  consol.log(targetFile);
+		  $.ajax({
+			  url: '/deleteFile',
+			  data: {fileName: targetFile, type: type},
+			  dataType: 'text',
+			  type: 'POST',
+			  success: function(result){
+				  alert(result);
+			  }
+		  });
+	  });
 	 
 });
+// $(document).ready() 바깥에 작성하는 이유 : 나중에 <a>에서 직접 showImage()를 호출하기 위해서
+function showImage(fileCallPath) {
+	//alert(fileCallPath);
+	$(".bigPictureWrapper").css("display", "flex").show(); // 화면의 정중앙에 이미지를 배치
+	$(".bigPicture").html("<img src='/display?fileName=" + encodeURI(fileCallPath) + "'>") // 파일 경로 처리
+	.animate({width:'100%', height: '100%'}, 1000); // 지정된 시간 동안 화면에서 열리는 효과 처리
+}
 </script>
 
 </body>

@@ -40,7 +40,7 @@
 	</insert>
 	 -->
 	 <select id="lastCnt" resultType="java.lang.Integer">
-	 	select max(no) from board_ex
+	 	select max(no) + 1 from board_ex
 	 </select>
 	
 	<!-- select -->

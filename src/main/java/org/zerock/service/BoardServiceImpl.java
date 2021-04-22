@@ -6,11 +6,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zerock.domain.BoardVO;
 import org.zerock.domain.Criteria;
+import org.zerock.mapper.BoardAttachMapper;
 import org.zerock.mapper.BoardMapper;
 
-import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
 //비즈니스 계층의 인터페이스와 구현 클래스가 작성되었다면, 이를 스프링의 빈으로 인식하기 위해서 root-context.xml에
@@ -19,7 +20,7 @@ import lombok.extern.log4j.Log4j;
 @Log4j
 //계층 구조상 비즈니스 영역을 담당하는 객체임을 표시. 패키지를 읽어 들이는 동안 처리된다.
 @Service // root-context.xml에서 service인식하게 해주는 표식
-@AllArgsConstructor
+//@AllArgsConstructor //2개의 Mapper를 주입받아야 하기 때문에 자동주입 대신 Setter 메서드를 사용
 public class BoardServiceImpl implements BoardService {
 	//spring 4.3 이상에서 자동 처리 - 단일 파라미터를 받는 생성자의 경우에는 필요한 파라미터를 자동으로 주입 가능
 	//@AllArgsConstructor는 모든 파라미터를 이용하는 생성자를 만들기 때문에 실제 코드는 BoardMapper를 주입받는 생성자가 만들어진다
@@ -28,6 +29,27 @@ public class BoardServiceImpl implements BoardService {
 	@Setter(onMethod_ = @Autowired) // BoardService객체가 BoardMapper를 주입 받는 코드
 	private BoardMapper mapper;
 	
+	//2개의 Mapper를 주입받아야 하기 때문에 자동주입 대신 Setter 메서드를 사용
+	@Setter(onMethod_ = @Autowired)
+	private BoardAttachMapper attachMapper;
+	
+	//게시물의 등록 작업은 board_ex테이블과 board_attach 테이블 양쪽 모두 insert가 진행되어야 하기 때문에 트랜잭션 처리가 필요 (p567)
+	@Override
+	@Transactional
+	public void insert(BoardVO board) {
+		log.info("insert......." + board);
+		mapper.insert(board);
+		
+		if (board.getAttachList() == null || board.getAttachList().size() <= 0) {
+			return;
+		}
+		board.getAttachList().forEach(attach -> {
+			attach.setBno(mapper.lastCnt());
+			attachMapper.insert(attach);
+		});
+	}
+	
+	/*
 	@Override
 	public void insert(BoardVO board) {
 		//등록 작업의 구현과 테스트 (p204)
@@ -37,7 +59,7 @@ public class BoardServiceImpl implements BoardService {
 		log.info("insert......." + board);
 		mapper.insert(board);
 	}
-	
+	*/
 	public int lastCnt() {
 		log.info("get the newest number....");
 		return mapper.lastCnt();

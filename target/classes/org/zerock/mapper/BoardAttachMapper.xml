@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- sprint xml이 mvc2 dao 역할 -->
+<!-- XML 작성 시 주의사항 -->
+<!-- 1. <mapper>의 namespace 속성값을 Mapper 인터페이스와 동일한 이름으로 작성 -->
+<!-- 2. <select> 태그의 id 속성값은 메서드의 이름과 일치하도록 작성 -->
+<!-- 3. resultType 속성의 값은 select 쿼리의 결과를 특정 클래스의 객체로 만들기 위해 설정 -->
+<!-- 4. XML에 사용한 CDATA 부분은 XML에서 부등호를 사용하기 위해 사용 -->
+
+<!-- 인터페이스와 xml을 묶어주는 코드 (아래) -->
+<mapper namespace="org.zerock.mapper.BoardAttachMapper">
+	
+	<select id="getList" resultType="org.zerock.domain.BoardVO">
+		<![CDATA[
+			select * from board_ex where no > 0
+		]]>
+	</select>
+	
+	<!-- 몇 건의 데이터가 변경되었는지만 알려주기 때문에 추가된 데이터의 pk는 알 수 없지만 1번의 sql처리로 작업이 완료 -->
+	<insert id="insert">
+		insert into board_attach (uuid, uploadPath, filename, filetype, bno)
+		values ( #{uuid}, #{uploadPath}, #{filename}, #{filetype}, #{bno})
+	</insert>
+		
+	<!-- delete -->
+	<delete id="delete">
+		delete from board_attach where uuid = #{uuid}
+	</delete>
+	
+	
+	<select id="findByBno" resultType="org.zerock.domain.BoardAttachVO">
+		select * from board_attach where bno = #{bno}
+	</select>
+	
+</mapper>
