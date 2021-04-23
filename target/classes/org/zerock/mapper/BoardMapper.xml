@@ -30,15 +30,15 @@
 	<!-- 주로 pk값을 미리(before) sql을 통해 처리해두고 특정한 이름으로 결과를 보관. @Insert할 때 sql문을 보면 이미 처리된 결과를 이용 -->
 	<!-- order="BEFORE" : 인서트 하기 전에 selectKey. 그 후에 인서트 -->
 	<!-- 새로 등록한 글 번호 -->
-	<!-- 
+	
 	<insert id="insertSelectKey">
 		<selectKey keyProperty="no" order="BEFORE" resultType="int">
-			select max(no)+1 from board_ex
+			select max(no) + 1 from board_ex
 		</selectKey>
-		insert into board_ex (title, content, writer, regdate)
-		values ( #{title}, #{content}, #{writer}, curdate())
+		insert into board_ex (no, title, content, writer, regdate)
+		values (#{no}, #{title}, #{content}, #{writer}, curdate())
 	</insert>
-	 -->
+	
 	 <select id="lastCnt" resultType="java.lang.Integer">
 	 	select max(no) + 1 from board_ex
 	 </select>

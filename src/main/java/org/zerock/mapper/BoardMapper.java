@@ -14,6 +14,7 @@ public interface BoardMapper {
 	//p189 영속 영역의 CRUD 구현
 	//insert
 	public void insert(BoardVO board);
+	public void insertSelectKey(BoardVO board);
 	
 	public int lastCnt();
 	

@@ -1,5 +1,10 @@
 package org.zerock.controller;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,7 +12,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.zerock.domain.BoardAttachVO;
 import org.zerock.domain.BoardVO;
 import org.zerock.domain.Criteria;
 import org.zerock.domain.PageDTO;
@@ -67,23 +74,16 @@ public class BoardController {
 	
 	// 첨부파일 처리
 	@PostMapping("/insert")
-	public String insert(BoardVO board, RedirectAttributes rttr) { // list화면으로의 redirect를 위해 return을 String으로 설정
-		log.info("insert : " + board);
+	//public String insert(BoardVO board, RedirectAttributes rttr) { // list화면으로의 redirect를 위해 return을 String으로 설정
+	public String insertSelectKey(BoardVO board, RedirectAttributes rttr) {
+
 		if (board.getAttachList() != null) {
 			board.getAttachList().forEach(attach -> log.info(attach));
-			/*
-			결과 콘솔
-			INFO : org.zerock.controller.BoardController - BoardAttachVO(uuid=632e052f-7cb1-4b9e-bfc7-acd899d9ad13, uploadPath=2021\04\22, fileName=sql활용2.JPG, fileType=true, bno=0)
-			INFO : org.zerock.controller.BoardController - BoardAttachVO(uuid=fc788e16-e8c2-4e30-a65c-ec9eb5ee4ea5, uploadPath=2021\04\22, fileName=test01.txt, fileType=false, bno=0)
-			*/
 		}
-		//service.insert(board);
-		//int lastCnt = service.lastCnt();
+		service.insertSelectKey(board);
 		
-		
-		//board.setNo(newestNo);
-		//rttr.addFlashAttribute("result", lastCnt); // RedirectAttributes의 addFlashAttribute()는 일회성으로만 데이터를 전달
-		
+		log.info("insert : " + board);
+		rttr.addFlashAttribute("result", board.getNo());
 		return "redirect:/board/list"; // spring MVC가 내부적으로 response.sendRedirect()를 처리. controller to controller로 간주
 	}
 	
@@ -94,6 +94,14 @@ public class BoardController {
 		//log.info(no);
 		log.info("/select or update");
 		model.addAttribute("board", service.select(no));
+	}
+	
+	//
+	@GetMapping(value="/getAttachList", produces=MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody // @RestController로 작성되지 않았기 때문에 직접 @ResponseBody를 적용해서 JSON 데이터를 반환
+	public ResponseEntity<List<BoardAttachVO>> getAttachList(int bno) {
+		log.info("getAttachList : " + bno);
+		return new ResponseEntity<>(service.getAttachList(bno), HttpStatus.OK);
 	}
 	
 	//페이지 관련 파라미터들을 처리하기 위한 변경

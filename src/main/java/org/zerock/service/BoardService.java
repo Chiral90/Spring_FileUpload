@@ -4,6 +4,7 @@ package org.zerock.service;
 
 import java.util.List;
 
+import org.zerock.domain.BoardAttachVO;
 import org.zerock.domain.BoardVO;
 import org.zerock.domain.Criteria;
 
@@ -11,6 +12,7 @@ public interface BoardService {
 	// 메서드 설계 시 메서드 이름은 현실적인 로직의 이름을 붙여준다
 
 	public void insert(BoardVO board); // 추상 메서드
+	public void insertSelectKey(BoardVO board);
 	
 	public int lastCnt(); //
 	
@@ -27,5 +29,8 @@ public interface BoardService {
 	
 	//total count
 	public int totalCnt(Criteria cri);
+	
+	//게시물 조회 시 첨부파일도 함께 조회 - Ajax
+	public List<BoardAttachVO> getAttachList(int bno);
 
 }

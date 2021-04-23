@@ -142,6 +142,19 @@
             
         	</div>
         	<!-- end Modal Window -->
+        	
+        	<!-- 해당 게시물의 댓글을 가져오는 부분을 자동으로 처리하는 부분 -->
+        	<script>
+        	$(document).ready(function(){
+        		(function(){
+        			var bno = $("#no").val();
+        			$.getJSON("/board/getAttachList", {bno:bno}, function(arr) {
+        				console.log(arr);
+        			}); // end getjson
+        			
+        		}); // end function
+        	});
+        	</script>
             
             <!-- 댓글 관련 JavaScript 모듈 -->
             <script type="text/javascript" src="/resources/js/reply.js"></script>

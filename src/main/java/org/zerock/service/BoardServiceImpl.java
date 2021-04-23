@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.zerock.domain.BoardAttachVO;
 import org.zerock.domain.BoardVO;
 import org.zerock.domain.Criteria;
 import org.zerock.mapper.BoardAttachMapper;
@@ -34,22 +35,36 @@ public class BoardServiceImpl implements BoardService {
 	private BoardAttachMapper attachMapper;
 	
 	//게시물의 등록 작업은 board_ex테이블과 board_attach 테이블 양쪽 모두 insert가 진행되어야 하기 때문에 트랜잭션 처리가 필요 (p567)
-	@Override
 	@Transactional
-	public void insert(BoardVO board) {
-		log.info("insert......." + board);
-		mapper.insert(board);
-		
+	@Override
+	public void insertSelectKey(BoardVO board) {
+	//public void insert(BoardVO board) {
+		//System.out.println("service insert start");
+		log.info("insert...." + board);
+		mapper.insertSelectKey(board);
+		//board.setNo(mapper.lastCnt());
 		if (board.getAttachList() == null || board.getAttachList().size() <= 0) {
 			return;
 		}
+		//System.out.println("service insert attach list scan start");
 		board.getAttachList().forEach(attach -> {
-			attach.setBno(mapper.lastCnt());
+			
+			//attach.setBno(board.getNo());
+			
+			attach.setBno(board.getNo());
+			//log.info(attach.getBno());
 			attachMapper.insert(attach);
 		});
 	}
 	
-	/*
+	//게시물 조회 시 첨부파일 동시에 조회
+	@Override
+	public List<BoardAttachVO> getAttachList(int bno) {
+		log.info("get Attach list by bno" + bno);
+		return attachMapper.findByBno(bno);
+	}
+	
+	
 	@Override
 	public void insert(BoardVO board) {
 		//등록 작업의 구현과 테스트 (p204)
@@ -59,7 +74,7 @@ public class BoardServiceImpl implements BoardService {
 		log.info("insert......." + board);
 		mapper.insert(board);
 	}
-	*/
+	
 	public int lastCnt() {
 		log.info("get the newest number....");
 		return mapper.lastCnt();

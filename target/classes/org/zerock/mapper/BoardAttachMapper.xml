@@ -21,7 +21,7 @@
 	<!-- 몇 건의 데이터가 변경되었는지만 알려주기 때문에 추가된 데이터의 pk는 알 수 없지만 1번의 sql처리로 작업이 완료 -->
 	<insert id="insert">
 		insert into board_attach (uuid, uploadPath, filename, filetype, bno)
-		values ( #{uuid}, #{uploadPath}, #{filename}, #{filetype}, #{bno})
+		values ( #{uuid}, #{uploadPath}, #{fileName}, #{fileType}, #{bno})
 	</insert>
 		
 	<!-- delete -->
