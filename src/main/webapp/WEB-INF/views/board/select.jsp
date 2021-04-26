@@ -107,6 +107,38 @@
             </div>
             <!-- /.row -->
             
+            <!-- 원본 이미지를 보여주는 부분 -->
+            <div class='bigPictureWrapper'>
+            	<div class='bigPicture'>
+            	</div>
+            </div>
+            <style>
+            .uploadResult {width: 100%;background:gray;}
+            .uploadResult ul {display:flex;flex-flow:row;justify-content:center;text-align:center;}
+            .uploadResult ul li {list-style: none;padding: 10px;align-content:center;text-align:center;}
+            .uploadResult ul li img {width:100px;}
+            .uploadResult ul li span { color:white;}
+            .bigPictureWrapper { position:absolute; display:none; justify-content:center;align-items:center;top:0%;width:100%;height:100%;background-color:gray;z-index:100;background:rgba(255, 255, 255, 0.5);}
+            .bigPicture {position:relative;display:flex;justify-content:center;align-items:center;}
+            .bigPicture img {width:600px;}
+            </style>
+            
+            <div class='row'>
+            	<div class="col-lg-12">
+            		<div class="panel panel-default">
+            			<div class="panel-heading">Files</div>
+            			<div class="panel-body">
+            				<!-- 첨부파일의 목록을 보여주는 부분 -->
+            				<div class='uploadResult'>
+            					<ul>
+            					
+            					</ul>
+            				</div>
+            			</div>
+            		</div>
+            	</div>
+            </div>
+            
             <!-- Modal(댓글 작성란) 추가 -->
             <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
             aria-hidden="true">
@@ -143,17 +175,69 @@
         	</div>
         	<!-- end Modal Window -->
         	
-        	<!-- 해당 게시물의 댓글을 가져오는 부분을 자동으로 처리하는 부분 -->
+        	<!-- 해당 게시물의 첨부파일 데이터를 자동으로 가져오는 부분 -->
         	<script>
         	$(document).ready(function(){
-        		(function(){
+
         			var bno = $("#no").val();
         			$.getJSON("/board/getAttachList", {bno:bno}, function(arr) {
         				console.log(arr);
+        				
+        				var str = "";
+        				
+        				$(arr).each(function(i, attach){
+        					
+        					if (attach.fileType) {//image type
+        						var fileCallPath = encodeURIComponent(attach.uploadPath + "/thumbnail_" + attach.uuid + "_" + attach.fileName);
+        						
+        						str += "<li data-path='" + attach.uploadPath+"' data-uuid='" + attach.uuid + "' data-filename='" + attach.fileName + "' data-type='"
+        							+ attach.fileType + "' ><div>";
+        						str += "<img src='/display?fileName=" + fileCallPath + "'>";
+        						str += "</div></li>";
+        					} else {
+        						str += "<li data-path='" + attach.uploadPath+"' data-uuid'" + attach.uuid + "' data-filename='" + attach.fileName + "' data-type='"
+    								+ attach.fileType + "' ><div>";
+	    						str += "<span> " + attach.fileName + "</span><br/>";
+	    						str += "<img src='/resources/img/roseicon.jpg'>";
+	    						str += "</div></li>";
+        					}
+        				});
+        				$(".uploadResult ul").html(str);
         			}); // end getjson
         			
-        		}); // end function
-        	});
+        			$(".uploadResult").on("click", "li", function(e){
+        				console.log("view image");
+        				var liObj = $(this);
+        				
+        				var path = encodeURIComponent(liObj.data("path") + "/" + liObj.data("uuid") + "_" + liObj.data("filename"));
+        				
+        				if (liObj.data("type")) {
+        					showImage(path.replace(new RegExp(/\\/g), "/")); // 파일 경로의 경우 함수로 전달될 때 문제가 발생할 수 있으므로 replace()를 이용해서 변환한 뒤에 전달
+        					//console.log(path);
+        					//console.log(path.replace(new RegExp(/\\/g), "/"));
+        				} else {
+        					//download
+        					self.location = "/download?fileName=" + path
+        				}
+        				
+        			});
+        			
+        			function showImage(fileCallPath) { 
+        				//alert(fileCallPath);
+        				$(".bigPictureWrapper").css("display", "flex").show();
+        				$(".bigPicture").html("<img src='/display?fileName=" + fileCallPath + "'>").animate({width:'100%', height:'100%'}, 1000);
+        			}
+        			
+        			//게시물 조회에서 원본 이미지 창 닫기
+        			$(".bigPictureWrapper").on("click", function(e){
+        				$(".bigPicture").animate({width:'0%', height:'0%'}, 1000);
+        			setTimeout(function(){
+        				$('.bigPictureWrapper').hide();
+        			}, 1000);
+        			});
+        			
+        			
+        	}); // end function
         	</script>
             
             <!-- 댓글 관련 JavaScript 모듈 -->
@@ -164,18 +248,18 @@
 	    		
 	    		
 	    		var bnoValue = $("#no").val();
-	    		
+	    		//console.log(bnoValue);
 	    		var replyUL = $(".chat");
 	    		
 	    		showList(1);
 	    		
 	    		function showList(page) { // 페이지 번호를 파라미터로 받는다
-	    			console.log("show list " + page);
+	    			//console.log("show list " + page);
 	    		
 	    			replyService.getList({bno:bnoValue, page:page||1}, function(replyCnt, list) { //해당 게시물 댓글 개수, 전체 댓글 같이 받아옴
-	    				console.log("replyCnt : " + replyCnt);
-	    				console.log("list : " + list);
-	    				console.log(list);
+	    				//console.log("replyCnt : " + replyCnt);
+	    				//console.log("list : " + list);
+	    				//console.log(list);
 	    				
 	    				if (page == -1) { // 페이지 번호가 '-1'로 전달되면 마지막 페이지를 찾아서 다시 호출. 사용자가 새로운 댓글을 추가하면 showList(-1)을 호출해서 먼저 전체 댓글의 숫자를 파악하고 다시 마지막 페이지를 호출해서 이동
 	    					pageNum = Math.ceil(replyCnt/10.0);
@@ -284,6 +368,7 @@
 	    		 });
 	    		 // 모달 창 내에서 Register 버튼 작동
 	    		 modalRegisterBtn.on("click", function(e){
+	    			 console.log("clicked");
 	    			var reply = {
 	    					reply: modalInputReply.val(),
 	    					replyer: modalInputReplyer.val(),
@@ -305,7 +390,7 @@
 	    		 //댓글 클릭 이벤트 처리
 	    		 $(".chat").on("click", "li", function(e){ // 이미 존재하는 DOM 요소에 이벤트를 처리. 실제 이벤트의 대상은 <li>태그
 	    			var rno = $(this).data("rno");
-	    			console.log(rno);
+	    			//console.log(rno);
 	    			// 특정 댓글 조회 클릭 이벤트 처리
 	    			replyService.get(rno, function(reply){
 	    				modalInputReply.val(reply.reply);
@@ -379,16 +464,16 @@
 	    				 str += "<li class='page-item'><a class='page-link' href='"+(endNum + 1) + "'>Next</a></li>";
 	    			 }
 	    			 str += "</ul></div>";
-	    			 console.log(str);
+	    			 //console.log(str);
 	    			 replyPageFooter.html(str);
 	    		 }
 	    		 // 페이지의 번호를 클릭했을 때 새로운 댓글을 가져오도록 하는 부분
 	    		 replyPageFooter.on("click", "li a", function(e) { // 댓글의 페이지 번호는 a 태그 내에 존재
 	    			 e.preventDefault();
-	    			 console.log("page click");
+	    			 //console.log("page click");
 	    			 
 	    			 var targetPageNum = $(this).attr("href"); // 페이지 번호 클릭 시 댓글 페이지 번호를 변경
-	    			 console.log("targetPageNum : " + targetPageNum);
+	    			 //console.log("targetPageNum : " + targetPageNum);
 	    			 pageNum = targetPageNum;
 	    			 showList(pageNum);
 	    		 });

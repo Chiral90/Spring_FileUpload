@@ -29,9 +29,18 @@
 		delete from board_attach where uuid = #{uuid}
 	</delete>
 	
+	<!--  -->
+	<delete id="deleteAll">
+		delete from board_attach where bno = #{bno}
+	</delete>
 	
 	<select id="findByBno" resultType="org.zerock.domain.BoardAttachVO">
 		select * from board_attach where bno = #{bno}
+	</select>
+	
+	<!--  -->
+	<select id="getOldFiles" resultType="org.zerock.domain.BoardAttachVO">
+		select * from board_attach where uploadpath = (curdate() - 1)
 	</select>
 	
 </mapper>

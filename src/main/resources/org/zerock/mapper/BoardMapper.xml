@@ -32,7 +32,7 @@
 	<!-- 새로 등록한 글 번호 -->
 	
 	<insert id="insertSelectKey">
-		<selectKey keyProperty="no" order="BEFORE" resultType="int">
+		<selectKey keyProperty="no" order="BEFORE" resultType="int"> <!-- 글 하나도 없을 때 등록 에러남 -->
 			select max(no) + 1 from board_ex
 		</selectKey>
 		insert into board_ex (no, title, content, writer, regdate)
@@ -194,7 +194,7 @@
 	 
 	 <!-- 댓글 개수 업데이트 -->
 	 <update id="updateReplyCnt">
-	 	update board_ex set replycnt = replycnt + #{amount} where no = #{no}
+	 	update board_ex set replycnt = replycnt + #{amount} where no = #{bno}
 	 </update>
 	 
 	 <!-- getListWithPaging ; 댓글 처리 후. replycnt컬럼을 인라인 뷰, 최종 테이블에 추가 -->

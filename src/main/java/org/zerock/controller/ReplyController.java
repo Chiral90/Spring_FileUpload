@@ -33,8 +33,8 @@ public class ReplyController {
 		
 		log.info("ReplyVO : " + vo);
 		
-		int insertCount = service.register(vo); //ServiceImpl 호출 -> register() 호출 -> 댓글이 추가된 숫자를 확인해서 브라우저에 '200 OK' 혹은 '500 Internal Server Error'를 리턴 // 실제 인서트 되는 데이터
-		// Java에서는 정상적으로 처리하면 1이 저장
+		int insertCount = service.register(vo); //ServiceImpl 호출 -> register() 호출 -> 댓글이 추가된 숫자를 확인해서 브라우저에 '200 OK' 혹은 '500 Internal Server Error'를 리턴
+		// 실제 인서트 되는 데이터 // Java에서는 정상적으로 처리하면 1이 저장
 		log.info("Reply INSERT COUNT : " + insertCount);
 		
 		//insert, update 등은 실행 결과를 1, 0으로 리턴

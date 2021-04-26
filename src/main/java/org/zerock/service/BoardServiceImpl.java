@@ -12,6 +12,7 @@ import org.zerock.domain.BoardVO;
 import org.zerock.domain.Criteria;
 import org.zerock.mapper.BoardAttachMapper;
 import org.zerock.mapper.BoardMapper;
+import org.zerock.mapper.ReplyMapper;
 
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
@@ -29,6 +30,9 @@ public class BoardServiceImpl implements BoardService {
 	// BoardServiceImpl이 정상적으로 동작하기 위해서는 BoardMapper 객체가 필요 - @Autowired와 같이 직접 설정하거나 @Setter를 이용해서 처리 가능
 	@Setter(onMethod_ = @Autowired) // BoardService객체가 BoardMapper를 주입 받는 코드
 	private BoardMapper mapper;
+	
+	@Setter(onMethod_ = @Autowired)
+	private ReplyMapper replyMapper;
 	
 	//2개의 Mapper를 주입받아야 하기 때문에 자동주입 대신 Setter 메서드를 사용
 	@Setter(onMethod_ = @Autowired)
@@ -88,14 +92,29 @@ public class BoardServiceImpl implements BoardService {
 	
 	//삭제/수정 구현과 테스트 : 엄격하게 처리하기 위해 Boolean 타입으로 처리
 	//정상적인 수정과 삭제가 이루어지면 1이 반환, '==' 연산자를 이용해 true/false 처리
+	// p591 : tx
+	@Transactional
 	public boolean update(BoardVO board) {
 		log.info("update...." + board);
-		
-		return mapper.update(board) == 1;
+		attachMapper.deleteAll(board.getNo());
+		boolean updateResult = mapper.update(board) == 1;
+		if (updateResult && board.getAttachList() != null && board.getAttachList().size() > 0) {
+			board.getAttachList().forEach(attach -> {
+				attach.setBno(board.getNo());
+				attachMapper.insert(attach);
+				
+			});
+		}
+		return updateResult;
+		//return mapper.update(board) == 1;
 	}
 	
+	//첨부파일의 삭제와 살제 게시물의 삭제가 같이 처리되어야 하므로 트랜잭션 처리 p579
+	@Transactional
 	public boolean delete(int no) {
 		log.info("remove...." + no);
+		attachMapper.deleteAll(no);
+		replyMapper.deleteAll(no);
 		return mapper.delete(no) == 1;
 	}
 	

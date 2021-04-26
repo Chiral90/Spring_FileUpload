@@ -2,6 +2,7 @@ package org.zerock.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.zerock.domain.Criteria;
@@ -10,18 +11,19 @@ import org.zerock.domain.ReplyVO;
 import org.zerock.mapper.BoardMapper;
 import org.zerock.mapper.ReplyMapper;
 
-import lombok.AllArgsConstructor;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j;
 
 @Service
 @Log4j
-@AllArgsConstructor
+//@AllArgsConstructor
 public class ReplyServiceImpl implements ReplyService {
 	
-	//@Setter(onMethod_ = @Autowired)
+	@Setter(onMethod_ = @Autowired)
 	private ReplyMapper mapper;
 	
 	//tx 처리를 위해 BoardMapper 추가
+	@Setter(onMethod_ = @Autowired)
 	private BoardMapper boardMapper;
 	
 	//@Override

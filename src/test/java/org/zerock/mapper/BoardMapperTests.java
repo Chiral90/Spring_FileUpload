@@ -107,7 +107,7 @@ public class BoardMapperTests {
 		System.out.println("total count : " + mapper.totalCnt(cri));
 	}
 	
-	@Test
+	//@Test
 	public void testInsertSelectKey() {
 		BoardVO board = new BoardVO();
 		board.setTitle("new title by insert select key");
@@ -116,5 +116,4 @@ public class BoardMapperTests {
 		mapper.insertSelectKey(board);
 		log.info("새로 등록될 글의 번호 : " + board.getNo());
 	}
-
 }

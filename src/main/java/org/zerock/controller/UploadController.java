@@ -46,7 +46,7 @@ public class UploadController {
 	@PostMapping("/uploadFormAction")
 	public void uploadFormPost(MultipartFile[] uploadFile, Model model) { // MultipartFile : 스프링에서 제공하는 타입. 첨부파일을 여러 개 선택할 수 있으므로 배열 타입으로 설정
 		
-		String uploadFolder = "D:\\01-STUDY\\upload";
+		String uploadFolder = "D:\\upload";
 		
 		for (MultipartFile multipartFile : uploadFile ) {
 			log.info("--------------------------");
@@ -74,7 +74,7 @@ public class UploadController {
 	@ResponseBody
 	public ResponseEntity<List<AttachFileDTO>> uploadAjaxPost(MultipartFile[] uploadFile) {
 		List<AttachFileDTO> list = new ArrayList<>();
-		String uploadFolder = "D:\\01-STUDY\\upload";
+		String uploadFolder = "D:\\upload";
 		
 		String uploadFolderPath = getFolder();
 		// make folder
@@ -208,7 +208,7 @@ public class UploadController {
 	@ResponseBody
 	public ResponseEntity<byte[]> getFile(String fileName) { // 파일의 경로가 포함된 fileName을 파라미터로 받고 byte[]를 전송. byte[]로 이미지 파일의 데이터를 전송할 때 주의할 것은 브라우저에 보내는 MIME 타입이 파일의 종류에 따라 달라진다는 점이다
 		log.info("fileName : " + fileName);
-		File file = new File("D:\\01-STUDY\\upload\\" + fileName);
+		File file = new File("D:\\upload\\" + fileName);
 		log.info("file : " + file);
 		ResponseEntity<byte[]> result = null;
 		
@@ -233,7 +233,7 @@ public class UploadController {
 	public ResponseEntity<Resource> downloadFile(@RequestHeader("User-Agent") String userAgent, String fileName) {
 	//public ResponseEntity<Resource> downloadFile(String fileName) { // org.springframework.core.io.Resource -> ResponseEntity<>의 타입을 간단하게 사용하기 위함
 		//log.info("download file : " + fileName);
-		Resource resource = new FileSystemResource("D:\\01-STUDY\\upload\\" + fileName);
+		Resource resource = new FileSystemResource("D:\\upload\\" + fileName);
 		//log.info("resource : " + resource);
 		
 		//다운로드할 파일이 없으면 NOT_FOUND 반환
@@ -293,7 +293,7 @@ public class UploadController {
 		
 		try {
 			//일반 파일의 경우 파일만을 삭제
-			file = new File("D:\\01-STUDY\\upload\\" + URLDecoder.decode(fileName, "UTF-8"));
+			file = new File("D:\\upload\\" + URLDecoder.decode(fileName, "UTF-8"));
 			file.delete();
 			
 			//이미지의 경우 썸네일도 같이 삭제

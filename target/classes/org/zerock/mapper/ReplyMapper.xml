@@ -17,6 +17,10 @@
 		delete from board_reply where rno = #{rno}
 	</delete>
 	
+	<delete id="deleteAll">
+		delete from board_reply where bno = #{bno}
+	</delete>
+	
 	<update id="update">
 		update board_reply set reply=#{reply}, updateDate=sysdate()
 		where rno = #{rno}

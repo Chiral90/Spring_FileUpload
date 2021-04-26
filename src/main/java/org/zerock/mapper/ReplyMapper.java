@@ -22,4 +22,6 @@ public interface ReplyMapper {
 			@Param("bno") int bno);
 	
 	public int getCountByBno (int bno);
+	
+	public void deleteAll(int bno);
 }
